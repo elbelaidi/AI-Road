@@ -42,7 +42,7 @@ public class Login extends AppCompatActivity {
                 return;
             }
 
-            String url = "http://192.168.110.93/airoad_backend/api/loginApi.php";
+            String url = "http://192.168.100.6/airoad_backend/api/loginApi.php";
 
             JSONObject jsonBody = new JSONObject();
             try {

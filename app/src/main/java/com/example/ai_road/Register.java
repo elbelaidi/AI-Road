@@ -26,7 +26,7 @@ public class Register extends AppCompatActivity {
     private Button registerBtn;
     private TextView backToLoginBtn;
 
-    private static final String REGISTER_URL = "http://192.168.110.93/airoad_backend/api/registerApi.php";
+    private static final String REGISTER_URL = "http://192.168.100.6/airoad_backend/api/registerApi.php";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
