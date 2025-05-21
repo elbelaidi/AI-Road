@@ -44,6 +44,7 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, SensorEventListener {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private String sessionName = "";
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
     private TextView welcomeText;
@@ -100,22 +101,44 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         };
 
         btnStartStopDetection.setOnClickListener(v -> {
-            detectionStarted = !detectionStarted;
-            btnStartStopDetection.setText(detectionStarted ? "Stop Detection" : "Start Detection");
+            if (!detectionStarted) {
+                final android.widget.EditText input = new android.widget.EditText(MainActivity.this);
+                input.setHint("e.g., Road to the mall");
 
-            if (detectionStarted) {
-                sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-                handler.post(sendRunnable);
-                btnStartStopDetection.setBackgroundColor(getResources().getColor(R.color.detection_start));
+                new androidx.appcompat.app.AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Start Detection")
+                        .setMessage("Enter a name for this detection session:")
+                        .setView(input)
+                        .setPositiveButton("Run", (dialog, which) -> {
+                            sessionName = input.getText().toString().trim();
+                            if (!sessionName.isEmpty()) {
+                                detectionStarted = true;
+                                btnStartStopDetection.setText("Stop Detection");
+                                sensorManager.registerListener(MainActivity.this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+                                handler.post(sendRunnable);
+                                btnStartStopDetection.setBackgroundColor(getResources().getColor(R.color.detection_start));
+                                Toast.makeText(MainActivity.this, "Detection started: " + sessionName, Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(MainActivity.this, "Session name is required!", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
             } else {
-                sensorManager.unregisterListener(this);
+                detectionStarted = false;
+                btnStartStopDetection.setText("Start Detection");
+                sensorManager.unregisterListener(MainActivity.this);
                 handler.removeCallbacks(sendRunnable);
                 btnStartStopDetection.setBackgroundColor(getResources().getColor(R.color.detection_stop));
+                Toast.makeText(MainActivity.this, "Detection stopped.", Toast.LENGTH_SHORT).show();
             }
         });
 
+
         btnHistory.setOnClickListener(v -> {
-            Toast.makeText(MainActivity.this, "History & Reports clicked", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(MainActivity.this, history_reports.class);
+            intent.putExtra("username", username);
+            startActivity(intent);
         });
 
         btnLogout.setOnClickListener(v -> {
@@ -178,6 +201,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     json.put("accel_x", x);
                     json.put("accel_y", y);
                     json.put("accel_z", z);
+                    json.put("session_name", sessionName);
                 } catch (JSONException e) {
                     e.printStackTrace();
                     return;
@@ -185,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 RequestBody body = RequestBody.create(json.toString(), JSON);
                 Request request = new Request.Builder()
-                        .url("http://192.168.100.6/airoad_backend/api/add_readingApi.php")
+                        .url("http://10.0.2.2/airoad_backend/api/add_readingApi.php")
                         .post(body)
                         .build();
 
@@ -221,7 +245,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         if (location != null) {
                             LatLng userLatLng = new LatLng(location.getLatitude(), location.getLongitude());
                             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 15));
-                            googleMap.addMarker(new MarkerOptions().position(userLatLng).title("You are here"));
                         } else {
                             Toast.makeText(this, "Unable to get current location", Toast.LENGTH_SHORT).show();
                         }

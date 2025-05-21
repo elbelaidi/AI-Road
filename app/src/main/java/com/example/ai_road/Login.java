@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.os.Handler;
+
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -42,7 +44,7 @@ public class Login extends AppCompatActivity {
                 return;
             }
 
-            String url = "http://192.168.100.6/airoad_backend/api/loginApi.php";
+            String url = "http://10.0.2.2/airoad_backend/api/loginApi.php";
 
             JSONObject jsonBody = new JSONObject();
             try {
@@ -62,12 +64,17 @@ public class Login extends AppCompatActivity {
                             String message = response.getString("message");
 
                             if (success) {
-                                Intent intent = new Intent(Login.this, MainActivity.class);
-                                intent.putExtra("username", user);
-                                startActivity(intent);
-                                finish();
 
-                            } else {
+
+                                new Handler().postDelayed(() -> {
+                                    Intent intent = new Intent(Login.this, MainActivity.class);
+                                    intent.putExtra("username", user);
+                                    startActivity(intent);
+                                    finish();
+                                }, 1000);
+                                showToast(message, true);
+                            }
+                            else {
                                 showToast(message, false);
                                 usernameInput.setText("");
                                 passwordInput.setText("");

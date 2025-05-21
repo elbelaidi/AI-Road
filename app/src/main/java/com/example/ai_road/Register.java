@@ -26,7 +26,7 @@ public class Register extends AppCompatActivity {
     private Button registerBtn;
     private TextView backToLoginBtn;
 
-    private static final String REGISTER_URL = "http://192.168.100.6/airoad_backend/api/registerApi.php";
+    private static final String REGISTER_URL = "http://10.0.2.2/airoad_backend/api/registerApi.php";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +76,6 @@ public class Register extends AppCompatActivity {
             JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, REGISTER_URL, jsonBody,
                     response -> {
                         try {
-                            // Assuming response JSON has {"success": true/false, "message": "..."}
                             boolean success = response.optBoolean("success", false);
                             String message = response.optString("message", "No message");
 
