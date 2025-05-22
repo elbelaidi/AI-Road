@@ -37,8 +37,9 @@ public class AnomalyAdapter extends ArrayAdapter<AnomalyReport> {
 
         mapThumbnail.setOnClickListener(v -> {
             Intent intent = new Intent(getContext(), MapPopupActivity.class);
-            intent.putExtra("lat", report.gpsLat);
-            intent.putExtra("lng", report.gpsLng);
+            intent.putExtra("sessionName", report.sessionName);
+            intent.putExtra("timestamp", report.timestamp);
+            intent.putExtra("impact", report.impact);
             getContext().startActivity(intent);
         });
 
