@@ -1,10 +1,12 @@
 package com.example.ai_road;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -32,17 +34,24 @@ public class history_reports extends AppCompatActivity {
     EditText searchSessionName;
     Spinner spinnerImpact;
 
-    ArrayList<AnomalyReport> reportList;          // Full list
-    ArrayList<AnomalyReport> filteredReportList;  // Filtered list shown in adapter
+    ArrayList<AnomalyReport> reportList;
+    ArrayList<AnomalyReport> filteredReportList;
 
     AnomalyAdapter adapter;
 
-    String username = "saad";
 
-    String[] impactOptions = {"All", "Low", "Moderate", "Hard"};  // Include "All" to reset filter
+
+
+
+    String[] impactOptions = {"All", "Low", "Moderate", "Hard"};
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        String username = getIntent().getStringExtra("username");
+
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_history_reports);
@@ -51,6 +60,11 @@ public class history_reports extends AppCompatActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+        });
+
+        Button buttonBackHome = findViewById(R.id.btnBack);
+        buttonBackHome.setOnClickListener(v -> {
+            finish();
         });
 
         searchSessionName = findViewById(R.id.searchSessionName);

@@ -1,10 +1,12 @@
 package com.example.ai_road;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -27,10 +29,18 @@ public class AnomalyAdapter extends ArrayAdapter<AnomalyReport> {
         TextView sessionName = convertView.findViewById(R.id.sessionNameTextView);
         TextView timestamp = convertView.findViewById(R.id.sessionDateTextView);
         TextView impact = convertView.findViewById(R.id.impactTextView);
+        ImageView mapThumbnail = convertView.findViewById(R.id.mapThumbnail);
 
         sessionName.setText("Session: " + report.sessionName);
         timestamp.setText("Time: " + report.timestamp);
         impact.setText("Impact: " + report.impact);
+
+        mapThumbnail.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), MapPopupActivity.class);
+            intent.putExtra("lat", report.gpsLat);
+            intent.putExtra("lng", report.gpsLng);
+            getContext().startActivity(intent);
+        });
 
         return convertView;
     }

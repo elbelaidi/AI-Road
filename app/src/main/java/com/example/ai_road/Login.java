@@ -71,7 +71,7 @@ public class Login extends AppCompatActivity {
                                     intent.putExtra("username", user);
                                     startActivity(intent);
                                     finish();
-                                }, 1000);
+                                }, 100);
                                 showToast(message, true);
                             }
                             else {

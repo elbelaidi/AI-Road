@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private String sessionName = "";
+
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
     private TextView welcomeText;
