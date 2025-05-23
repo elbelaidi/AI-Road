@@ -28,6 +28,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -251,12 +252,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         }
                     });
 
+            String username = getIntent().getStringExtra("username");
+            if (username != null && !username.isEmpty()) {
+                fetchAndPinAnomalies(username);
+            }
+
         } else {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     LOCATION_PERMISSION_REQUEST_CODE);
         }
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -274,4 +281,58 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
+    private void fetchAndPinAnomalies(String username) {
+        String url = "http://10.0.2.2/airoad_backend/api/getAnomalyReports.php?username=" + username;
+
+        Request request = new Request.Builder().url(url).build();
+
+        httpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(() ->
+                        Toast.makeText(MainActivity.this, "Failed to fetch anomalies", Toast.LENGTH_SHORT).show());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (!response.isSuccessful()) return;
+
+                String jsonResponse = response.body().string();
+                response.close();
+
+                try {
+                    JSONObject jsonObject = new JSONObject(jsonResponse);
+                    if (jsonObject.getBoolean("success")) {
+                        JSONArray dataArray = jsonObject.getJSONArray("data");
+
+                        runOnUiThread(() -> {
+                            for (int i = 0; i < dataArray.length(); i++) {
+                                try {
+                                    JSONObject item = dataArray.getJSONObject(i);
+
+                                    double lat = item.getDouble("gps_lat");
+                                    double lng = item.getDouble("gps_lng");
+                                    String session = item.getString("session_name");
+                                    String timestamp = item.getString("timestamp");
+                                    String impact = item.getString("impact");
+
+                                    LatLng anomalyLocation = new LatLng(lat, lng);
+                                    googleMap.addMarker(new MarkerOptions()
+                                            .position(anomalyLocation)
+                                            .title("Anomaly: " + session)
+                                            .snippet("Impact: " + impact + "\nTime: " + timestamp)
+                                    );
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
 }
